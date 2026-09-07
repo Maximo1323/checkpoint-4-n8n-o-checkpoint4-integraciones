@@ -1,0 +1,564 @@
+{
+  "name": "Checkpoint 4 - Integraciones Avanzadas",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -736,
+        16
+      ],
+      "id": "55435e02-b744-4203-aa93-e8d396e82160",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "C9W3k1Y2RcFbtzo7",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f62b2e3d-4854-45fb-8325-34839856ee5f",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Auto-reply",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "247448de-8139-4dcc-abbd-a90e3def09a9",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Out of office",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "419790af-ad17-4c92-ad1e-6f8b722ea263",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Undeliverable",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "af089365-e7a2-4f5c-b3b7-47d79a74bfb9",
+              "leftValue": "={{ $json.from }}",
+              "rightValue": "no-reply",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -400,
+        -160
+      ],
+      "id": "d55f4730-218d-44dc-be43-c1e564a2072f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Eres un asistente de atención al cliente. Analiza el correo recibido y genera una respuesta profesional y clara para el cliente.\nExtrae los siguientes datos si están presentes:\n- Nombre del cliente\n- Correo electrónico (From)\n- Asunto original (Subject)\n- Respuesta redactada",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -64,
+        -48
+      ],
+      "id": "da0af32d-b657-4503-a123-95d0a3c70740",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -272,
+        160
+      ],
+      "id": "73cec9d6-2ea2-4ab5-bfbb-b7f46838e962",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6glQGfWCfkDWP4L0",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fff8bc98-d0c8-4e1b-b37c-c147193337e5",
+              "name": "from",
+              "value": "={{ $('Gmail Trigger').item.json.from }}",
+              "type": "string"
+            },
+            {
+              "id": "0ee3024a-992f-4e8f-b5f8-e8b62deca015",
+              "name": "subject",
+              "value": "={{ $('Gmail Trigger').item.json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "9da01fc6-1756-4fcf-84f2-da8d0afe167e",
+              "name": "bodyText",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        304,
+        -48
+      ],
+      "id": "77c261cd-aa99-4da2-a507-9174bd408860",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "18JIj4eOkfVBBSvbdsTZLHWtZNe2zOcf60PH8-pURvpY",
+          "mode": "list",
+          "cachedResultName": "Tareas Checkpoint",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18JIj4eOkfVBBSvbdsTZLHWtZNe2zOcf60PH8-pURvpY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18JIj4eOkfVBBSvbdsTZLHWtZNe2zOcf60PH8-pURvpY/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Email",
+              "lookupValue": "={{ $json.from }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        592,
+        -48
+      ],
+      "id": "ebaec695-7f5f-4e48-a1a5-b4a347257efd",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NexbGls7ertdXowM",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a8e808c3-001b-481d-b3db-1a944dff2dcd",
+              "leftValue": "={{ $json.row_number }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        800,
+        -48
+      ],
+      "id": "cbd588ad-e44f-4c91-a81a-348db6408390",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "18JIj4eOkfVBBSvbdsTZLHWtZNe2zOcf60PH8-pURvpY",
+          "mode": "list",
+          "cachedResultName": "Tareas Checkpoint",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18JIj4eOkfVBBSvbdsTZLHWtZNe2zOcf60PH8-pURvpY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18JIj4eOkfVBBSvbdsTZLHWtZNe2zOcf60PH8-pURvpY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Tarea": "={{ $('Edit Fields').item.json.subject }}",
+            "Prioridad": "Media",
+            "Estado": "Actualizado",
+            "Email": "={{ $('Edit Fields').item.json.from }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Tarea",
+              "displayName": "Tarea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prioridad",
+              "displayName": "Prioridad",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        976,
+        -304
+      ],
+      "id": "a6fcae84-184b-41b7-b6ae-34777b09f440",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NexbGls7ertdXowM",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "18JIj4eOkfVBBSvbdsTZLHWtZNe2zOcf60PH8-pURvpY",
+          "mode": "list",
+          "cachedResultName": "Tareas Checkpoint",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18JIj4eOkfVBBSvbdsTZLHWtZNe2zOcf60PH8-pURvpY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18JIj4eOkfVBBSvbdsTZLHWtZNe2zOcf60PH8-pURvpY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Tarea": "={{ $('Edit Fields').item.json.subject }}",
+            "Prioridad": "Alta",
+            "Estado": "Nuevo",
+            "Email": "={{ $('Edit Fields').item.json.from }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Tarea",
+              "displayName": "Tarea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prioridad",
+              "displayName": "Prioridad",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1008,
+        48
+      ],
+      "id": "0f543e0b-c94d-46e5-900c-a5dfcfea415d",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NexbGls7ertdXowM",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "=Re: {{ $('Edit Fields').item.json.subject }}",
+        "message": "={{ $('Edit Fields').item.json.bodyText }}",
+        "options": {
+          "sendTo": "={{ $('Edit Fields').item.json.from }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1296,
+        -64
+      ],
+      "id": "6c641153-dbc5-41a7-ae8c-bd3c8b9e426b",
+      "name": "Create a draft",
+      "webhookId": "d7e1b5b0-1a8c-49be-a76d-4b52085fdf7b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "C9W3k1Y2RcFbtzo7",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "85112362-ff03-4329-9edc-8302068d1585",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "031f73ee8f472618f1c0b6f0cc968f1ae14dbbe792a1176d200386b5fc68a96b"
+  },
+  "nodeGroups": [],
+  "id": "tT7R1dY0aRaYbTQL",
+  "tags": []
+}
